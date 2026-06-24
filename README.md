@@ -1,1 +1,1 @@
-# Prisma-Authjs-with-Nextjs
+## Prisma Auth.js with Next.js
