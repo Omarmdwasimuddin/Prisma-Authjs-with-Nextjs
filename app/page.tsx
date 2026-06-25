@@ -1,65 +1,91 @@
+import { SignIn, SignOut } from "../app/components/auth-components";
+import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 import Image from "next/image";
 
-export default function Home() {
+const Page = async () => {
+  const session = await auth();
+
+  let user = null;
+  if (session?.user?.id) {
+    user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gradient-to-b from-neutral-950 to-black flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden">
+          {/* Header */}
+          <div className="px-6 pt-8 pb-6 text-center border-b border-neutral-800">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-neutral-800 mb-4">
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.09.68-.22.68-.48 0-.24-.01-.86-.01-1.69-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85 0 1.34-.01 2.42-.01 2.75 0 .27.18.58.69.48A10.01 10.01 0 0022 12c0-5.523-4.477-10-10-10z" />
+              </svg>
+            </div>
+            <h1 className="text-white text-lg font-semibold">Auth.js + Prisma</h1>
+            <p className="text-neutral-500 text-sm mt-1">Secure authentication demo</p>
+          </div>
+
+          {/* Body */}
+          <div className="p-6">
+            {!session ? (
+              <SignIn provider="github" />
+            ) : (
+              <div className="space-y-5">
+                <div className="flex items-center gap-3">
+                  {session.user?.image ? (
+                    <Image
+                      src={session.user.image}
+                      alt={session.user.name ?? "User avatar"}
+                      width={44}
+                      height={44}
+                      className="rounded-full ring-2 ring-neutral-800"
+                    />
+                  ) : (
+                    <div className="w-11 h-11 rounded-full bg-neutral-700 flex items-center justify-center text-white text-sm font-medium">
+                      {session.user?.name?.[0] ?? "U"}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-white text-sm font-medium truncate">
+                      {session.user?.name ?? "Unknown user"}
+                    </p>
+                    <p className="text-neutral-500 text-xs truncate">{session.user?.email}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-neutral-500 text-xs uppercase tracking-wide mb-2">
+                    Database record
+                  </p>
+                  {user ? (
+                    <dl className="bg-neutral-950 border border-neutral-800 rounded-lg p-3 text-xs space-y-1.5">
+                      <div className="flex justify-between gap-3">
+                        <dt className="text-neutral-500">ID</dt>
+                        <dd className="text-neutral-300 truncate">{user.id}</dd>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <dt className="text-neutral-500">Email verified</dt>
+                        <dd className="text-neutral-300">{user.emailVerified ? "Yes" : "No"}</dd>
+                      </div>
+                    </dl>
+                  ) : (
+                    <p className="text-neutral-500 text-xs italic">
+                      No matching record found in database.
+                    </p>
+                  )}
+                </div>
+
+                <SignOut />
+              </div>
+            )}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
     </div>
   );
-}
+};
+
+export default Page;
