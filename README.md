@@ -105,7 +105,7 @@ npx prisma generate
 ---
 
 ### Create lib/prisma.ts from root directory
-```
+```code
 import { PrismaClient } from "../app/generated/prisma/client"; 
 import { PrismaPg } from "@prisma/adapter-pg"; 
 const adapter = new PrismaPg({
@@ -137,12 +137,12 @@ For this guide, you'll be setting up OAuth with Github. For this, you'll need 3 
 - CLIENT_ID - Provided by Github
 - CLIENT_SECRET - Provided by Github
 #### To get the AUTH_SECRET, you can run the following command:
-```
+```powershell
 npx auth secret
 ```
 
 ### .env
-```
+```code
 DATABASE_URL=<YOUR_DATABASE_URL>
 AUTH_SECRET=<YOUR_AUTH_SECRET>
 ```
@@ -159,7 +159,7 @@ To get the CLIENT_ID and CLIENT_SECRET, you can create a new OAuth application o
 - Click Generate new client secret and copy the Client ID and Client Secret.
 
 #### Add the Client ID and Client Secret to the .env file:
-```
+```code
 DATABASE_URL=<YOUR_DATABASE_URL>
 AUTH_SECRET=<YOUR_AUTH_SECRET>
 AUTH_GITHUB_ID=<YOUR_GITHUB_CLIENT_ID>
@@ -168,7 +168,7 @@ AUTH_GITHUB_SECRET=<YOUR_GITHUB_CLIENT_SECRET>
 ---
 
 ### In the /lib folder, create a new file called auth.config.ts and add the following code:
-```
+```code
 import type { NextAuthConfig } from "next-auth";
 import GitHub from "next-auth/providers/github";
 
@@ -193,7 +193,7 @@ export default {
 ```
 
 ### In the /lib folder, create a new file called auth.ts and add the following code:
-```
+```code
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@/lib/prisma";
@@ -207,7 +207,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 ---
 
 ### In the root, create a new file called proxy.ts. This will protect your routes and ensure that only authenticated users can access them:
-```
+```code
 import NextAuth from "next-auth";
 import authConfig from "@/lib/auth.config";
 
@@ -218,7 +218,7 @@ export default auth;
 ---
 
 ### Create a new file at app/api/auth/[...nextauth]/route.ts:
-```
+```code
 import { handlers } from "@/lib/auth";
 
 export const { GET, POST } = handlers;
@@ -228,7 +228,7 @@ export const { GET, POST } = handlers;
 You will be creating a Sign In and Sign Out button. Create a /components folder in the root and add a new file called auth-components.tsx in it.
 
 Start by importing the signIn and signOut functions from the auth file:
-```
+```code
 import { signIn, signOut } from "@/lib/auth";
 
 export function SignIn({ provider }: { provider?: string }) {
@@ -274,7 +274,7 @@ export function SignOut() {
 ---
 
 ### In the /app folder, replace the page.tsx file with the following code:
-```
+```code
 import { SignIn, SignOut } from "../app/components/auth-components";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
@@ -370,7 +370,7 @@ export default Page;
 ---
 
 ### next.config.ts
-```
+```code
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -389,7 +389,7 @@ export default nextConfig;
 ---
 
 ### types/next-auth.d.ts
-```
+```code
 import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
